@@ -45,12 +45,11 @@ class StellarService {
   async watchPayments (accountId) {
     try {
       // Get new payments
-      const payments = await this.server.payments().forAccount(accountId).cursor(this.cursor).call();
-
-      if (!payments) return;
-      
+      const payments = await this.server.payments()
+        .forAccount(accountId)
+        .cursor(this.cursor)
+        .call();
       const { records } = payments;
-      console.log('-------- New records: ', records);
 
       if (records.length > 0) {
         // Save cursor
@@ -70,7 +69,9 @@ class StellarService {
       if (record.type === 'payment' && record.to === this.sourceKeys.publicKey()) {
         // Get transaction by transaction_hash to check memo
         try {
-          const tx = await this.server.transactions().transaction(record.transaction_hash).call();
+          const tx = await this.server.transactions()
+            .transaction(record.transaction_hash)
+            .call();
           if (tx.memo_type === 'id' && !!tx.memo) {
             // Increase user deposit amount and save
             this.deposits[tx.memo] = (this.deposits[tx.memo] || 0) + Number(record.amount);
@@ -85,7 +86,7 @@ class StellarService {
     }
   }
 
-  async start () {
+  start () {
     try {
       // Stop if service was running
       this.stop();
